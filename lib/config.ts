@@ -37,11 +37,11 @@ export const GROUPS: Group[] = [
   {
     id: 'pathfinders',
     name: 'The Pathfinders',
-    lead: { name: 'Oluwadamilola Oluduro', code: 'SB-201' },
+    lead: { name: 'Kelvin Esekhile', code: 'SB-201' },
     members: [
       { name: 'Ikem Kenechi', code: 'SB-202' },
       { name: 'Isaac Emmanuel', code: 'SB-203' },
-      { name: 'Kelvin Esekhile', code: 'SB-204' },
+      { name: 'Oluwadamilola Oluduro', code: 'SB-204' },
       { name: 'Olaleye-Ige Tomiwa', code: 'SB-205' },
     ],
   },
@@ -59,10 +59,10 @@ export const GROUPS: Group[] = [
   {
     id: 'navigators',
     name: 'The Navigators',
-    lead: { name: 'Zainab Giwa', code: 'SB-401' },
+    lead: { name: 'Pius Oladoyin', code: 'SB-401' },
     members: [
       { name: 'Olasubomi Oduntan', code: 'SB-402' },
-      { name: 'Pius Oladoyin', code: 'SB-403' },
+      { name: 'Zainab Giwa', code: 'SB-403' },
       { name: 'Tolu Daniel Adeyemi', code: 'SB-404' },
       { name: 'Makinde Akinola', code: 'SB-405' },
     ],
@@ -92,11 +92,11 @@ export const GROUPS: Group[] = [
   {
     id: 'adventurers',
     name: 'The Adventurers',
-    lead: { name: 'Kassim Eshemogie', code: 'SB-701' },
+    lead: { name: 'Damilola Oyelere', code: 'SB-701' },
     members: [
       { name: 'Obanijesu Adeyemo', code: 'SB-702' },
       { name: 'Oladejo Romoke', code: 'SB-703' },
-      { name: 'Damilola Oyelere', code: 'SB-704' },
+      { name: 'Kassim Eshemogie', code: 'SB-704' }
     ],
   },
 ];
