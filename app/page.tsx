@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { saveSession } from '@/lib/session';
 
@@ -81,7 +82,10 @@ export default function LoginPage() {
         </form>
 
         <p className="mt-6 text-center text-xs text-slate-400">
-          Organizer? Go to <span className="font-semibold text-slate-500">/admin</span>
+          Organizer? Go to{' '}
+          <Link href="/admin" className="font-semibold text-slate-500 underline hover:text-brand">
+            /admin
+          </Link>
         </p>
       </div>
     </main>
