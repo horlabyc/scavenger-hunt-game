@@ -30,6 +30,22 @@ export async function setStatus(status: GameStatus): Promise<void> {
   await game.updateOne({ _id: GAME_DOC_ID }, { $set: update }, { upsert: true });
 }
 
+/** Convert a stored taskId -> Date map into ISO strings for the client. */
+function serializeTimes(map?: Record<string, Date> | null): Record<string, string> {
+  const out: Record<string, string> = {};
+  if (!map) return out;
+  for (const [id, when] of Object.entries(map)) {
+    if (when) out[id] = new Date(when).toISOString();
+  }
+  return out;
+}
+
+export interface GroupProgress {
+  completedTaskIds: string[];
+  /** Map of taskId -> ISO timestamp it was marked done. */
+  completedAtById: Record<string, string>;
+}
+
 /** Completed task IDs for a single group. */
 export async function getProgress(groupId: string): Promise<string[]> {
   const { progress } = await collections();
@@ -37,23 +53,39 @@ export async function getProgress(groupId: string): Promise<string[]> {
   return doc?.completedTaskIds ?? [];
 }
 
-/** Add or remove a task from a group's completed list. Returns the new list. */
+/** Completed task IDs plus per-task completion timestamps for a group. */
+export async function getGroupProgress(groupId: string): Promise<GroupProgress> {
+  const { progress } = await collections();
+  const doc = await progress.findOne({ _id: groupId });
+  return {
+    completedTaskIds: doc?.completedTaskIds ?? [],
+    completedAtById: serializeTimes(doc?.completedAtById),
+  };
+}
+
+/** Add or remove a task from a group's completed list. Returns the new progress. */
 export async function toggleTask(
   groupId: string,
   taskId: string,
   done: boolean,
-): Promise<string[]> {
+): Promise<GroupProgress> {
   const { progress } = await collections();
-  const op = done ? { $addToSet: { completedTaskIds: taskId } } : { $pull: { completedTaskIds: taskId } };
-  await progress.updateOne(
-    { _id: groupId },
-    { ...op, $set: { updatedAt: new Date() } },
-    { upsert: true },
-  );
+  const now = new Date();
+  const op = done
+    ? {
+        $addToSet: { completedTaskIds: taskId },
+        $set: { [`completedAtById.${taskId}`]: now, updatedAt: now },
+      }
+    : {
+        $pull: { completedTaskIds: taskId },
+        $unset: { [`completedAtById.${taskId}`]: '' as const },
+        $set: { updatedAt: now },
+      };
+  await progress.updateOne({ _id: groupId }, op, { upsert: true });
 
   // Stamp (or clear) the all-tasks-complete time, used to decide the winner.
-  const updated = await getProgress(groupId);
-  const isComplete = computeScoreAndPercent(updated).completedCount === TASKS.length;
+  const updated = await getGroupProgress(groupId);
+  const isComplete = computeScoreAndPercent(updated.completedTaskIds).completedCount === TASKS.length;
   const existing = await progress.findOne({ _id: groupId });
   if (isComplete && !existing?.completedAt) {
     await progress.updateOne({ _id: groupId }, { $set: { completedAt: new Date() } });
@@ -141,9 +173,9 @@ export async function getGroupDetail(groupId: string) {
   const group = getGroup(groupId);
   if (!group) return null;
 
-  const completed = await getProgress(groupId);
-  const completedSet = new Set(completed);
-  const stats = computeScoreAndPercent(completed);
+  const { completedTaskIds, completedAtById } = await getGroupProgress(groupId);
+  const completedSet = new Set(completedTaskIds);
+  const stats = computeScoreAndPercent(completedTaskIds);
 
   return {
     groupId: group.id,
@@ -160,6 +192,7 @@ export async function getGroupDetail(groupId: string) {
       category: t.category,
       score: t.score,
       done: completedSet.has(t.id),
+      completedAt: completedAtById[t.id] ?? null,
     })),
     maxScore: TOTAL_SCORE,
     ...stats,

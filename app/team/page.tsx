@@ -11,6 +11,7 @@ interface StateResponse {
   status: GameStatus;
   startedAt: string | null;
   completedTaskIds: string[];
+  completedAtById: Record<string, string>;
   score: number;
   maxScore: number;
   percent: number;
@@ -34,6 +35,16 @@ interface LeaderboardResponse {
 }
 
 const POLL_MS = 5000;
+
+/** Format a completion timestamp like "Jun 22, 3:45 PM". */
+function formatCompletedAt(iso: string): string {
+  return new Date(iso).toLocaleString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+}
 
 export default function TeamPage() {
   const router = useRouter();
@@ -130,6 +141,7 @@ export default function TeamPage() {
 
   const status = state?.status ?? 'not_started';
   const completed = new Set(state?.completedTaskIds ?? []);
+  const completedAtById = state?.completedAtById ?? {};
   const canMark = session.isLead && status === 'running';
 
   return (
@@ -157,6 +169,7 @@ export default function TeamPage() {
           <ul className="space-y-2">
             {session.tasks.map((task, i) => {
               const isDone = completed.has(task.id);
+              const doneAt = completedAtById[task.id];
               return (
                 <li key={task.id}>
                   <button
@@ -198,6 +211,11 @@ export default function TeamPage() {
                         </span>
                       </span>
                       <span className="block text-xs text-slate-500">{task.description}</span>
+                      {isDone && doneAt && (
+                        <span className="mt-1 block text-[11px] font-semibold text-brand-dark">
+                          ✓ Done {formatCompletedAt(doneAt)}
+                        </span>
+                      )}
                     </span>
                     <span className="flex-none self-start rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600">
                       {task.score} pts

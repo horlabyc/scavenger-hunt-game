@@ -36,6 +36,8 @@ export interface GameStateDoc {
 export interface ProgressDoc {
   _id: string; // groupId
   completedTaskIds: string[];
+  /** Map of taskId -> when that task was marked done. */
+  completedAtById?: Record<string, Date>;
   updatedAt: Date;
   /** When this group finished ALL tasks (null until/unless fully complete). */
   completedAt?: Date | null;

@@ -17,6 +17,7 @@ interface GroupDetail {
     category: string;
     score: number;
     done: boolean;
+    completedAt: string | null;
   }[];
   score: number;
   maxScore: number;
@@ -27,6 +28,16 @@ interface GroupDetail {
 
 const POLL_MS = 10000;
 const PW_KEY = 'sh.admin.pw';
+
+/** Format a completion timestamp like "Jun 22, 3:45 PM". */
+function formatCompletedAt(iso: string): string {
+  return new Date(iso).toLocaleString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  });
+}
 
 export default function GroupDetailPage() {
   const router = useRouter();
@@ -175,6 +186,11 @@ export default function GroupDetailPage() {
                       </span>
                     </span>
                     <span className="block text-xs text-slate-500">{task.description}</span>
+                    {task.done && task.completedAt && (
+                      <span className="mt-1 block text-[11px] font-semibold text-brand-dark">
+                        ✓ Done {formatCompletedAt(task.completedAt)}
+                      </span>
+                    )}
                   </span>
                   <span className="flex-none self-start rounded-full bg-slate-100 px-2.5 py-1 text-xs font-bold text-slate-600">
                     {task.score} pts

@@ -37,8 +37,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: message }, { status: 409 });
   }
 
-  const completedTaskIds = await toggleTask(identity.groupId, taskId, done);
+  const { completedTaskIds, completedAtById } = await toggleTask(identity.groupId, taskId, done);
   const stats = computeScoreAndPercent(completedTaskIds);
 
-  return NextResponse.json({ completedTaskIds, maxScore: MAX_SCORE, ...stats });
+  return NextResponse.json({ completedTaskIds, completedAtById, maxScore: MAX_SCORE, ...stats });
 }
