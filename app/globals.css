@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  @apply bg-brand-tint text-slate-900 antialiased;
+}
+
+/* Smooth progress bar fill */
+.progress-fill {
+  transition: width 0.5s ease;
+}
+
+/* Confetti for the winning group's card */
+.confetti-piece {
+  position: absolute;
+  top: -12px;
+  opacity: 0;
+  animation-name: confetti-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-12px) rotateZ(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(220px) rotateZ(540deg);
+    opacity: 0;
+  }
+}
